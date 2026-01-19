@@ -17,10 +17,12 @@ class style_creation(ttk.Style):
 
 class file_widget():
     def __init__(self,window,file,icon_image,style1,style2):
+
+        self.file=file
         if len(file) > 15: 
             file=file[:15] #Sets text size limit
             file+="..."
-
+        
         self.icon_fram=frame_creation(window,2,0,style=style1,relief="groove",width=108,height=85)
         self.file_name=ttk.Label(self.icon_fram,text=file,style=style2,font=("Ariles",10))
         self.file_icon=ttk.Label(self.icon_fram,image=icon_image,style=style2)
@@ -29,6 +31,13 @@ class file_widget():
         self.file_icon.grid(row=0,padx=10,pady=5,sticky='n')
         self.file_name.grid(row=1,padx=5,pady=5,sticky='n')
 
+        self.icon_fram.bind("<Button-1>",self.when_clicked)
+        self.file_icon.bind("<Button-1>",self.when_clicked)
+        self.file_name.bind("<Button-1>",self.when_clicked)
+
     def place(self,row,column):
         self.icon_fram.grid(row=row,column=column,padx=3,pady=3)
+
+    def when_clicked(self,event):
+        print(self.file,"was pressed!")
 

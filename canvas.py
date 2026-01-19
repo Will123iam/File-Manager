@@ -43,22 +43,14 @@ scroll_frame = frame_creation(side_select_canvas,int(count/2),2,style="turquoise
 side_select_canvas.create_window((0,0),window=scroll_frame,anchor='nw')
 
 #Loads files into selection menu
-all_icons=[]
-x=0
-y=0
-
+x,y=0,0
 for file in files:
     icon=file_widget(scroll_frame,file,file_icon,"blue.TFrame","blue.TLabel")
     icon.place(y,x)
-    all_icons.append(icon)
     if x == 1: 
         x=0
         y+=1
     else: x+= 1
         
-
-
-print(all_icons)
-
 
 win_canvas.mainloop()

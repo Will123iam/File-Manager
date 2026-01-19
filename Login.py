@@ -31,7 +31,7 @@ device_input=tk.StringVar(value=None) #Input varible for where to look for loadi
 connection_frame = frame_creation(login_win,2,2,relief="groove")
 connection_frame.grid(row=1,column=1)
 
-devNam=ttk.Label(connection_frame,text="Device Name:",font=("Ariles",15))
+devNam=ttk.Label(connection_frame,text="Path Name:",font=("Ariles",15))
 devNam.grid(row=0,column=0,padx=5,pady=5,sticky='w')
 
 device=ttk.Entry(connection_frame,textvariable=device_input)
