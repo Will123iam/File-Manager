@@ -68,28 +68,17 @@ win_canvas.config(bg="gray")
 rows_colums(win_canvas,0,2)
 win_canvas.minsize(600,300)
 
-#Loads files into selection menu
-def disply_files(files):
-    x,y=0,0
-    for file in files:
-        icon=file_widget(scroll_frame,file,file_images,"blue.TFrame","blue.TLabel",view_container,path)
-        icon.place(y,x)
-        if x == 1: 
-            x=0
-            y+=1
-        else: x+= 1
-
-def update_winsize(side_select_canvas,view_container): #Updates sizing / placemnts on screen
+def update_winsize(side_selection,view_container): #Updates sizing / placemnts on screen
     #global win_size_hight
     win_canvas.update_idletasks()
     win_size_hight = win_canvas.winfo_height()
     win_size_width = win_canvas.winfo_width()
 
     #Updates widgets
-    side_select_canvas.configure(height=(win_size_hight-35))
-    view_container.configure(width=(win_size_width-240))
+    side_selection.update_size(220,(win_size_hight-35))
+    view_container.configure(width=(win_size_width-270))
 
-    win_canvas.after(500,lambda: update_winsize(side_select_canvas,view_container))
+    win_canvas.after(500,lambda: update_winsize(side_selection,view_container)) #Runs loop again
 
 
 #Load file icon
@@ -160,7 +149,6 @@ shrink(path_label)
 #ttk.Label(side_selection_container,text="rtj5e6je56j").grid(row=1,column=1)
 #path_label.bind("<Configure>",shrink)
 
-#disply_files(files)
-#update_winsize(side_selection,view_container)
+update_winsize(side_selection,view_container)
 
 win_canvas.mainloop()

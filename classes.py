@@ -168,6 +168,10 @@ class scrollable_frame(ttk.Frame):
         self.canvas.unbind_all("<MouseWheel>")
         print("Unbinding")
 
+    def update_size(self,width,hight):
+        self.canvas.configure(width=width,height=hight)
+
+
 class error_popup():
     def __init__(self,window):
         self.error_frame=frame_creation(window,2,2)
