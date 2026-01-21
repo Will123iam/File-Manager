@@ -117,14 +117,16 @@ class scrollable_frame(ttk.Frame):
         self.view_container=view_container
         self.pv_path=pv_path
 
-        canvas =tk.Canvas(self,bg=bg,width=width,height=hight)
-        canvas.pack(side="left",fill="both",expand=True,padx=5,pady=5)
+        self.canvas =tk.Canvas(self,bg=bg,width=width,height=hight)
+        self.canvas.pack(side="left",fill="both",expand=True,padx=5,pady=5)
 
-        scrollbar=ttk.Scrollbar(self,orient="vertical",command=canvas.yview)
+        scrollbar=ttk.Scrollbar(self,orient="vertical",command=self.canvas.yview)
         scrollbar.pack(side='right',fill='y')
 
-        self.scroll_frame=frame_creation(canvas,3,3,style=style)
-        canvas.create_window((0,0),window=self.scroll_frame,anchor='nw')
+        self.scroll_frame=frame_creation(self.canvas,3,3,style=style)
+        self.canvas_win=self.canvas.create_window((0,0),window=self.scroll_frame,anchor='nw')
+
+        self.canvas.bind_all("<MouseWheel>",self.scroll)
 
     def load_content(self,pv_path,file):
         new_file=""
@@ -149,8 +151,13 @@ class scrollable_frame(ttk.Frame):
                 x=0
                 y+=1
             else: x+= 1
+    
+    def scroll(self,event):
+        print(event)
+        move = -1 if event.delta > 0 else 1 
+        self.canvas.yview_scroll(move, "units")
 
 class error_popup():
     def __init__(self,window):
         self.error_frame=frame_creation(window,2,2)
-        
+
