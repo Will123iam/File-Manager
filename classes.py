@@ -2,6 +2,17 @@ import tkinter as tk
 from tkinter import ttk
 import os
 
+class window_location():
+    def __init__(self):
+        previous_layout=open("window_location.txt",'r')
+        self.previous_layout=previous_layout.readline()
+        self.location=[0 for x in range(6)]
+
+    def use_previous(self):
+        print("Ooopsss!")    
+
+windows=window_location()
+
 class frame_creation(ttk.Frame):
     def __init__(self,window,rows,columns,**kwargs):
         ttk.Frame.__init__(self,window,**kwargs)
@@ -17,16 +28,24 @@ class style_creation(ttk.Style):
         for item in items: self.configure(f"{name}.T{item}", background=bg)
 
 class file_widget():
-    def __init__(self,window,file,icon_image,style1,style2,view_container,previous_path):
+    def __init__(self,window,file,file_images,style1,style2,view_container,previous_path):
 
         self.view_container=view_container
         self.file=file
-        self.detection_valuex=-1
         self.previous_path = previous_path
+        self.file_images=file_images
 
         if len(file) > 15: 
             file=file[:15] #Sets text size limit
             file+="..."
+
+        end = self.file[-4:]
+
+        if end == ".pdf": icon_image = file_images[1]
+        elif end == ".png": icon_image = file_images[2]
+        elif end == ".JPG": icon_image = file_images[3]
+        else: icon_image=file_images[0]
+
         
         self.icon_fram=frame_creation(window,2,0,style=style1,relief="groove",width=108,height=85)
         self.file_name=ttk.Label(self.icon_fram,text=file,style=style2,font=("Ariles",10))
@@ -55,22 +74,46 @@ class file_widget():
 
     def when_clicked(self,event):
         self.detection()
-        self.view_frame=scrollable_frame(self.view_container,"dark turquoise",450,350,"turquoise.TFrame",0,self.detection_valuex,self.view_container,(self.previous_path+"/"+self.file))
+        self.view_frame=scrollable_frame(self.view_container,"dark turquoise",450,350,"turquoise.TFrame",self.y,self.x,self.view_container,(self.previous_path+"/"+self.file),self.file_images)
         self.inner_files=self.view_frame.load_content(self.previous_path,self.file)
         self.view_frame.disply_file(self.inner_files)
 
     def detection(self):
-        self.detection_valuex += 1
-        if self.detection_valuex > 3: self.detection_valuex = 0
-        
+        count=0
+        stop=False
+        for pos in windows.location:
+            if not stop:
+                print("looking at x:",pos,count)
+                if pos == 0 and count<3:
+                    windows.location[count] = 1
+                    self.x = count
+                    self.y = 0
+                    stop=True
+                else:   
+                    print("NOW AT Y!","looking at:",pos,count)
+                    if pos == 0 and count>=3:
+                        temp=count-3
+                        print("Count:",count,temp)
+                        windows.location[count] = 1
+                        self.y = 2
+                        self.x = temp
+                        stop=True
+                    else: 
+                        print("No space!")
+                        self.y,self.x = 0,0
+
+                count+=1
+
+        print(windows.location)
+
 
 
 class scrollable_frame(ttk.Frame):
-    def __init__(self,container_frame,bg,width,hight,style,row,column,view_container,pv_path):
+    def __init__(self,container_frame,bg,width,hight,style,row,column,view_container,pv_path,icon_images):
         ttk.Frame.__init__(self,container_frame,style=style,relief="ridge")
         self.grid(row=row,column=column,sticky="nw",padx=10,pady=10)
         self.grid_propagate(False)
-        self.file_icon=tk.PhotoImage(file="images/icon_file.png")
+        self.file_icon=icon_images
         self.view_container=view_container
         self.pv_path=pv_path
 
@@ -106,3 +149,8 @@ class scrollable_frame(ttk.Frame):
                 x=0
                 y+=1
             else: x+= 1
+
+class error_popup():
+    def __init__(self,window):
+        self.error_frame=frame_creation(window,2,2)
+        

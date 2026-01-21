@@ -2,8 +2,9 @@ import tkinter as tk
 from tkinter import ttk, font
 from classes import *
 from repeat_functions import *
+#from PIL import Image, ImageTk
 
-#Section one
+# - - - - - - - - - - - Section one - - - - - - - - - - -
 
 def pathsave(file,item):
     data=open(file,'w')
@@ -49,9 +50,11 @@ continue_butt=ttk.Button(connection_frame,text="Ok",command=load_canvas)
 continue_butt.grid(row=1,column=1,padx=5,pady=5)
 #Input End
 
+login_win.bind("<Return>",lambda event: load_canvas())
+
 login_win.mainloop()
 
-#Section two
+# - - - - - - - - Section two - - - - - - - - - 
 
 #Loads path
 path=device_input.get()
@@ -63,12 +66,13 @@ win_canvas.geometry("1200x800")
 win_canvas.title(f"File Manager - {path}")
 win_canvas.config(bg="gray")
 rows_colums(win_canvas,0,2)
+win_canvas.minsize(600,300)
 
 #Loads files into selection menu
 def disply_files(files):
     x,y=0,0
     for file in files:
-        icon=file_widget(scroll_frame,file,file_icon,"blue.TFrame","blue.TLabel",view_container,path)
+        icon=file_widget(scroll_frame,file,file_images,"blue.TFrame","blue.TLabel",view_container,path)
         icon.place(y,x)
         if x == 1: 
             x=0
@@ -89,7 +93,11 @@ def update_winsize(side_select_canvas,view_container): #Updates sizing / placemn
 
 
 #Load file icon
-file_icon=tk.PhotoImage(file="images/icon_file.png")
+file_images=[]
+file_images.append(load_image("images/icon_file.png",48,48))
+file_images.append(load_image("images/pdf.png",48,48))
+file_images.append(load_image("images/PNG.png",48,48))
+file_images.append(load_image("images/JPG.png",48,48))
 
 #Styles
 blue_style=style_creation("blue","classic","light steel blue",items=["Frame","Label"])
@@ -134,7 +142,7 @@ def shrink(event):
 pathFont=font.Font(family="Helvetica",size=15,name="pathFont")
 
 #Show path
-path_frame=frame_creation(side_selection_container,1,1,style="white.TFrame")
+path_frame=frame_creation(side_selection_container,1,1,style="white.TFrame",relief="groove")
 path_frame.grid(row=1,column=0,sticky='wes')
 path_frame.grid_propagate(False)
 
@@ -143,11 +151,10 @@ path_label.pack(side='left',pady=3)
 shrink(path_label)
 
 #ttk.Label(side_selection_container,text="rtj5e6je56j").grid(row=1,column=1)
-
 #path_label.bind("<Configure>",shrink)
 
 #Finder like windows
-view_container=frame_creation(win_canvas,2,2,width=950)
+view_container=frame_creation(win_canvas,3,2,width=950)
 view_container.grid(row=0,column=1,sticky="nsew")
 view_container.grid_propagate(False)
 
