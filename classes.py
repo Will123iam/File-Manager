@@ -4,8 +4,8 @@ import os
 
 class window_location():
     def __init__(self):
-        previous_layout=open("window_location.txt",'r')
-        self.previous_layout=previous_layout.readline()
+        #previous_layout=open("window_location.txt",'r')
+        #self.previous_layout=previous_layout.readline()
         self.location=[0 for x in range(6)]
 
     def use_previous(self):
@@ -138,7 +138,8 @@ class scrollable_frame(ttk.Frame):
             new_file+=char
 
         #path=open("path.txt",'r')
-        path=pv_path+"/"+file
+        if pv_path:path=pv_path+"/"+file
+        else: path = pv_path
         files=os.listdir(path)
         print("Loaded!")
 
@@ -147,6 +148,7 @@ class scrollable_frame(ttk.Frame):
     def disply_file(self,files):
         x,y=0,0
         for file in files:
+            print(file)
             icon=file_widget(self.scroll_frame,file,self.file_icon,"blue.TFrame","blue.TLabel",self.view_container,self.pv_path)
             icon.place(y,x)
             if x == 4: 

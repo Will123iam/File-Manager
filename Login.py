@@ -107,23 +107,30 @@ turquoise_style=style_creation("turquoise","classic","dark turquoise",items=["Fr
 count=0
 for file in files: count+=1
 
+#Finder like windows
+view_container=frame_creation(win_canvas,3,2,width=950)
+view_container.grid(row=0,column=1,sticky="nsew")
+view_container.grid_propagate(False)
+
 #File selection
 side_selection_container = frame_creation(win_canvas,2,2)
 side_selection_container.grid(row=0,column=0,sticky='w')
 
-side_select_canvas = tk.Canvas(side_selection_container,bg="dark turquoise",width=220,height=793)
-side_selection_container.grid_columnconfigure(0,weight=3)
-side_select_canvas.grid(row=0,column=0,sticky="nesw")
-#side_select_canvas.pack(side="left",fill="both",expand=True)
+side_selection=scrollable_frame(side_selection_container,"dark turquoise",220,793,"turquoise.TFrame",0,0,view_container,path,file_images)
+side_selection.disply_file(files)
 
-scrollbar = ttk.Scrollbar(side_selection_container,orient="vertical",command=side_select_canvas.yview)
-scrollbar.grid(row=0,column=1,sticky='nes')
-#scrollbar.pack(side='right',fill='y')
 
-side_select_canvas.configure(yscrollcommand=scrollbar.set)
+#side_select_canvas = tk.Canvas(side_selection_container,bg="dark turquoise",width=220,height=793)
+#side_selection_container.grid_columnconfigure(0,weight=3)
+#side_select_canvas.grid(row=0,column=0,sticky="nesw")
 
-scroll_frame = frame_creation(side_select_canvas,int(count/2),2,style="turquoise.TFrame")
-side_select_canvas.create_window((0,0),window=scroll_frame,anchor='nw')
+#scrollbar = ttk.Scrollbar(side_selection_container,orient="vertical",command=side_select_canvas.yview)
+#scrollbar.grid(row=0,column=1,sticky='nes')
+
+#ide_select_canvas.configure(yscrollcommand=scrollbar.set)
+
+#scroll_frame = frame_creation(side_select_canvas,int(count/2),2,style="turquoise.TFrame")
+#side_select_canvas.create_window((0,0),window=scroll_frame,anchor='nw')
 
 def shrink(event):
     label = event
@@ -153,12 +160,7 @@ shrink(path_label)
 #ttk.Label(side_selection_container,text="rtj5e6je56j").grid(row=1,column=1)
 #path_label.bind("<Configure>",shrink)
 
-#Finder like windows
-view_container=frame_creation(win_canvas,3,2,width=950)
-view_container.grid(row=0,column=1,sticky="nsew")
-view_container.grid_propagate(False)
-
-disply_files(files)
-update_winsize(side_select_canvas,view_container)
+#disply_files(files)
+#update_winsize(side_selection,view_container)
 
 win_canvas.mainloop()
