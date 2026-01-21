@@ -43,7 +43,7 @@ class file_widget():
 
         if end == ".pdf": icon_image = file_images[1]
         elif end == ".png": icon_image = file_images[2]
-        elif end == ".JPG": icon_image = file_images[3]
+        elif end == ".JPG" or end == ".jpg": icon_image = file_images[3]
         else: icon_image=file_images[0]
 
         
@@ -126,7 +126,9 @@ class scrollable_frame(ttk.Frame):
         self.scroll_frame=frame_creation(self.canvas,3,3,style=style)
         self.canvas_win=self.canvas.create_window((0,0),window=self.scroll_frame,anchor='nw')
 
-        self.canvas.bind_all("<MouseWheel>",self.scroll)
+        #self.canvas.configure(scrollregion=self.scroll_frame.bbox("all"))
+        self.canvas.bind("<Enter>", self.bind)
+        self.canvas.bind("<Leave>", self.unbind)
 
     def load_content(self,pv_path,file):
         new_file=""
@@ -152,10 +154,17 @@ class scrollable_frame(ttk.Frame):
                 y+=1
             else: x+= 1
     
-    def scroll(self,event):
-        print(event)
-        move = -1 if event.delta > 0 else 1 
+    def scroll(self,event): #Scrolles the window
+        move = -1 if event.delta > 0 else 1 #Changes which way it scrolles
         self.canvas.yview_scroll(move, "units")
+
+    def bind(self, event):
+        self.canvas.bind_all("<MouseWheel>",self.scroll)
+        print("Binding")
+        #self.configure(style=)
+    def unbind(self, event):
+        self.canvas.unbind_all("<MouseWheel>")
+        print("Unbinding")
 
 class error_popup():
     def __init__(self,window):
