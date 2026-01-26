@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, font
 from classes import *
 from repeat_functions import *
+from pygame import mixer
 #from PIL import Image, ImageTk
 
 # - - - - - - - - - - - Section one - - - - - - - - - - -
@@ -35,6 +36,8 @@ old_path=old_path.readline()
 
 white_style=style_creation("white","classic","white",items=["Label","Frame"]) #White style
 device_input=tk.StringVar(value=old_path) #Input varible for where to look for loading files
+
+mixer.init() #starts pygames mixer for audio
 
 #File / Device location input
 connection_frame = frame_creation(login_win,2,2,relief="groove")
@@ -75,7 +78,7 @@ def update_winsize(side_selection,view_container): #Updates sizing / placemnts o
     win_size_width = win_canvas.winfo_width()
 
     #Updates widgets
-    side_selection.update_size(220,(win_size_hight-35))
+    side_selection.update_size(220,(win_size_hight-63))
     view_container.configure(width=(win_size_width-270))
 
     win_canvas.after(500,lambda: update_winsize(side_selection,view_container)) #Runs loop again
@@ -87,6 +90,7 @@ file_images.append(load_image("images/icon_file.png",48,48))
 file_images.append(load_image("images/pdf.png",48,48))
 file_images.append(load_image("images/PNG.png",48,48))
 file_images.append(load_image("images/JPG.png",48,48))
+file_images.append(load_image("images/mp3.png",48,48))
 
 #Styles
 blue_style=style_creation("blue","classic","light steel blue",items=["Frame","Label"])
@@ -101,13 +105,14 @@ view_container=frame_creation(win_canvas,3,2,width=950)
 view_container.grid(row=0,column=1,sticky="nsew")
 view_container.grid_propagate(False)
 
+media_frame=media_playback(view_container,2,2,None)
+
 #File selection
 side_selection_container = frame_creation(win_canvas,2,2)
 side_selection_container.grid(row=0,column=0,sticky='w')
 
-side_selection=scrollable_frame(side_selection_container,"dark turquoise",220,793,"turquoise.TFrame",0,0,view_container,path,file_images)
-side_selection.disply_file(files)
-
+side_selection=scrollable_frame(side_selection_container,"dark turquoise",220,793,"turquoise.TFrame",0,0,view_container,path,file_images,int(count/2),2)
+side_selection.disply_file(files,1)
 
 #side_select_canvas = tk.Canvas(side_selection_container,bg="dark turquoise",width=220,height=793)
 #side_selection_container.grid_columnconfigure(0,weight=3)

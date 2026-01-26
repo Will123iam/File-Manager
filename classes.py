@@ -1,6 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 import os
+from repeat_functions import file_load 
+from pygame import mixer
+from mutagen.mp3 import MP3
+#from Login import win_canvas
 
 class window_location():
     def __init__(self):
@@ -28,23 +32,30 @@ class style_creation(ttk.Style):
         for item in items: self.configure(f"{name}.T{item}", background=bg)
 
 class file_widget():
-    def __init__(self,window,file,file_images,style1,style2,view_container,previous_path):
+    def __init__(self,window,file,file_images,style1,style2,view_container,previous_path,pass_through=None):
+
+        #for item in pass_through:
+        #    setattr(self,item,item)
 
         self.view_container=view_container
         self.file=file
         self.previous_path = previous_path
         self.file_images=file_images
+        self.folder = False # Wheather it is a file or a folder
 
         if len(file) > 15: 
             file=file[:15] #Sets text size limit
             file+="..."
 
-        end = self.file[-4:]
+        self.end = self.file[-4:]
 
-        if end == ".pdf": icon_image = file_images[1]
-        elif end == ".png": icon_image = file_images[2]
-        elif end == ".JPG" or end == ".jpg": icon_image = file_images[3]
-        else: icon_image=file_images[0]
+        if self.end == ".pdf": icon_image = file_images[1]
+        elif self.end == ".png": icon_image = file_images[2]
+        elif self.end == ".JPG" or self.end == ".jpg": icon_image = file_images[3]
+        elif self.end == ".mp3": icon_image = file_images[4]
+        else: 
+            icon_image=file_images[0]
+            self.folder = True
 
         
         self.icon_fram=frame_creation(window,2,0,style=style1,relief="groove",width=108,height=85)
@@ -73,10 +84,14 @@ class file_widget():
         self.icon_fram.grid(row=row,column=column,padx=3,pady=3)
 
     def when_clicked(self,event):
-        self.detection()
-        self.view_frame=scrollable_frame(self.view_container,"dark turquoise",450,350,"turquoise.TFrame",self.y,self.x,self.view_container,(self.previous_path+"/"+self.file),self.file_images)
-        self.inner_files=self.view_frame.load_content(self.previous_path,self.file)
-        self.view_frame.disply_file(self.inner_files)
+        if self.folder:
+            self.detection()
+            self.view_frame=scrollable_frame(self.view_container,"dark turquoise",450,350,"turquoise.TFrame",self.y,self.x,self.view_container,(self.previous_path+"/"+self.file),self.file_images,4,4)
+            self.inner_files=self.view_frame.load_content(self.previous_path,self.file)
+            self.view_frame.disply_file(self.inner_files,3)
+        else:
+            #media_frame.play_adio((self.previous_path+"/"+self.file),self.end)
+            file_load((self.previous_path+"/"+self.file),self.end)
 
     def detection(self):
         count=0
@@ -109,7 +124,7 @@ class file_widget():
 
 
 class scrollable_frame(ttk.Frame):
-    def __init__(self,container_frame,bg,width,hight,style,row,column,view_container,pv_path,icon_images):
+    def __init__(self,container_frame,bg,width,hight,style,row,column,view_container,pv_path,icon_images,scroll_row,scroll_column):
         ttk.Frame.__init__(self,container_frame,style=style,relief="ridge")
         self.grid(row=row,column=column,sticky="nw",padx=10,pady=10)
         self.grid_propagate(False)
@@ -123,7 +138,7 @@ class scrollable_frame(ttk.Frame):
         scrollbar=ttk.Scrollbar(self,orient="vertical",command=self.canvas.yview)
         scrollbar.pack(side='right',fill='y')
 
-        self.scroll_frame=frame_creation(self.canvas,3,3,style=style)
+        self.scroll_frame=frame_creation(self.canvas,scroll_row,scroll_column,style=style)
         self.canvas_win=self.canvas.create_window((0,0),window=self.scroll_frame,anchor='nw')
 
         #self.canvas.configure(scrollregion=self.scroll_frame.bbox("all"))
@@ -145,13 +160,13 @@ class scrollable_frame(ttk.Frame):
 
         return files
     
-    def disply_file(self,files):
+    def disply_file(self,files,rowLength):
         x,y=0,0
         for file in files:
-            print(file)
+            #print(file)
             icon=file_widget(self.scroll_frame,file,self.file_icon,"blue.TFrame","blue.TLabel",self.view_container,self.pv_path)
             icon.place(y,x)
-            if x == 4: 
+            if x == rowLength: 
                 x=0
                 y+=1
             else: x+= 1
@@ -162,17 +177,65 @@ class scrollable_frame(ttk.Frame):
 
     def bind(self, event):
         self.canvas.bind_all("<MouseWheel>",self.scroll)
-        print("Binding")
+        #print("Binding")
         #self.configure(style=)
     def unbind(self, event):
         self.canvas.unbind_all("<MouseWheel>")
-        print("Unbinding")
+        #print("Unbinding")
 
     def update_size(self,width,hight):
         self.canvas.configure(width=width,height=hight)
+
+class media_playback():
+    def __init__(self,window,row,column,file):
+       self.media_style=style_creation("blue","classic","light steel blue",items=["Frame","Label","Button"])
+
+       self.time=tk.IntVar(value=mixer.music.get_pos())
+
+       self.midea_controlls=frame_creation(window,2,1,width=200,height=100,style="blue.TFrame",relief="ridge")
+       self.progress_frame=frame_creation(self.midea_controlls,2,1,relief="ridge")
+
+       self.midea_controlls.grid_propagate(False)
+       self.progress_frame.grid(row=1,column=0)
+
+       self.count=1
+       self.file = file
+
+       self.play_pause_butt=ttk.Button(self.midea_controlls,text="PAUSE",command=self.play_pause_toggle)
+       self.progress=ttk.Scale(self.progress_frame,from_=0,to=100,length=180,orient='horizontal')
+       
+       self.midea_controlls.grid(row=row,column=column,sticky='s')
+       self.play_pause_butt.grid(row=0,column=0)
+       self.progress.grid(row=0,column=0)
+       #self.unpause_butt.grid(row=0,column=2)
+
+    def play_pause_toggle(self):
+        if self.count == 1:
+            self.play_pause_butt.configure(text="PLAY")
+            mixer.music.pause()
+            self.count = 0
+        else:
+            self.play_pause_butt.configure(text="PAUSE")
+            mixer.music.unpause()
+            self.count = 1
+
+    def update_length(self):
+        self.audio=MP3(self.file)
+        self.length=self.audio.info.length
+        self.progress.configure(to=self.length)
+
+    def play_adio(self,type,file):
+        self.file=file
+        if type == ".mp3": #Plays mp3 through pygame
+            #Loads/playes file
+            mixer.music.load(file)
+            mixer.music.play()
+            print("Playing mp3:",file)
+
+        self.update_length()
 
 
 class error_popup():
     def __init__(self,window):
         self.error_frame=frame_creation(window,2,2)
-
+    
