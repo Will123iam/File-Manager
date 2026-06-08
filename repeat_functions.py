@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-from pygame import mixer
+from pygame import mixer #
 
 def rows_colums(window,rows,columns):
     for column in range(columns): window.columnconfigure(column,weight=1)
@@ -17,11 +17,3 @@ def load_image(file,x,y):
     image=image.resize((x,y),Image.LANCZOS)
     image_tk=ImageTk.PhotoImage(image)
     return image_tk
-
-def file_load(file,type):
-    if type == ".mp3": #Plays mp3 through pygame
-        #Loads/playes file
-        mixer.music.load(file)
-        mixer.music.play()
-        print("Playing mp3:",file)
-        

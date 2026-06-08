@@ -1,9 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
-from classes import file_widget, style_creation, frame_creation, scrollable_frame
+from classes import file_widget, style_creation, frame_creation
 from repeat_functions import rows_colums
-import os
-
+import os #
+ 
 #Loads path
 path=open("path.txt",'r')
 path=path.readline()

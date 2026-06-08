@@ -3,7 +3,117 @@ from tkinter import ttk, font
 from classes import *
 from repeat_functions import *
 from pygame import mixer
-#from PIL import Image, ImageTk
+import socket
+from threading import Thread
+#from PIL import Image, ImageTk#
+
+# - - - - - - - - - - - Section one - - - - - - - - - - -
+
+class sendFile():
+    def __init__(self):
+        #Window setup
+        self.win=tk.Tk()
+        self.win.geometry("500x300")
+        self.win.resizable(False,False)
+        self.win.title("Send / Recive Files")
+        self.win.configure(bg="lemon chiffon")
+
+        self.HOST = "86.167.85.190"
+        self.PORT = 1369
+
+        try:
+            print("connecting")
+            self.server = socket.socket()
+            self.server.connect((self.HOST,self.PORT))
+        except:
+            print(f"Error server not found! IP:{self.HOST} PORT:{self.PORT}")
+
+        self.inner_frame = ttk.Frame(self.win,relief="groove")
+        self.inner_frame.pack(anchor='center')
+
+        self.inner_frame.columnconfigure(0)
+        self.inner_frame.columnconfigure(1)
+        self.inner_frame.columnconfigure(2)
+
+        self.inner_frame.rowconfigure(0)
+        self.inner_frame.rowconfigure(1)
+        self.inner_frame.rowconfigure(2) 
+
+        self.inputs(self.inner_frame,self.server)
+
+
+        Thread(target=self.recive_messages,).start()
+
+
+
+    def recive_messages(self):
+        self.connected = True
+
+        while self.connected:
+            self.message = self.server.recv(1024).decode()
+
+            self.message_label=tk.Label(self.win,text=self.message,fg="red")
+            self.message_label.pack()
+            self.win.after(5000,self.message_label.destroy)
+            
+            print(self.message)
+
+            if self.message[0] == "1": self.inputs()
+            elif self.message[0] == "2": 
+                for widget in self.inner_frame.winfo_children(): widget.destroy()
+                sendFile()
+
+    def inputs(self):
+        self.username=tk.StringVar()
+        self.password=tk.StringVar()
+
+        u_e=ttk.Entry(self.inner_frame,textvariable=self.username)
+        p_e=ttk.Entry(self.inner_frame,textvariable=self.password)
+
+        user_label=tk.Label(self.inner_frame,text="User Name:")
+        pass_label=tk.Label(self.inner_frame,text="Password:")
+
+        contin_but1 = ttk.Button(self.inner_frame,text="Log In",command=lambda:self.server.send(f"False,{self.username.get()},{self.password.get()},".encode()))
+        contin_but2 = ttk.Button(self.inner_frame,text="Sign Up",command=lambda:self.server.send(f"True,{self.username.get()},{self.password.get()},".encode()))
+        
+        u_e.grid(column=1,row=0,padx=5,pady=10)
+        p_e.grid(column=1,row=1,padx=5,pady=10)
+        user_label.grid(column=0,row=0,padx=5,pady=10)
+        pass_label.grid(column=0,row=1,padx=5,pady=10)
+        contin_but1.grid(column=1,row=2,padx=5,pady=10)
+        contin_but2.grid(column=0,row=2,padx=5,pady=10)
+
+    def sendFile(self):
+
+        def send():
+            self.file = open(self.file_name.get(),'rb')
+            self.server.send(self.file_name.get().encode())
+            print("Sent name")
+
+            data=file.read()
+            self.server.sendall(data)
+            self.file.close()
+            self.server.send(b"<END>")
+
+            for widget in self.inner_frame.winfo_children():
+                widget.destroy()
+        
+            #print(server.recv(1024).decode())
+
+        self.server.send("SENDING".encode())
+        
+        self.file_name=tk.StringVar()
+
+        self.send_label=tk.Label(self.inner_frame,text="Upload a file")
+        self.send_label2=tk.Label(self.inner_frame,text="File Path:")
+        self.file_entry=ttk.Entry(self.inner_frame,textvariable=self.file_name)
+        self.contin_but1 = ttk.Button(self.inner_frame,text="Upload File",command=send)
+
+        self.send_label.grid(column=0,row=0,padx=5,pady=10)
+        self.send_label2.grid(column=0,row=1,padx=5,pady=10)
+        self.file_entry.grid(column=1,row=1,padx=5,pady=10)
+        self.contin_but1.grid(column=1,row=2,padx=5,pady=10)
+
 
 # - - - - - - - - - - - Section one - - - - - - - - - - -
 
@@ -30,6 +140,22 @@ login_win.resizable(False,False)
 login_win.title("File Manager - Login")
 login_win.config(bg="lemon chiffon")
 rows_colums(login_win,3,3) #Adds a grid
+
+
+def threadSending():
+    server=sendFile()
+    Thread(target=server.sendFile,).start()
+
+#Menu bar
+topMenu = tk.Menu(login_win)
+
+server_menu=tk.Menu(topMenu,tearoff=0)
+server_menu.add_command(label="Send File",command=threadSending)
+
+topMenu.add_cascade(label="Server",menu=server_menu)
+
+login_win.configure(menu=topMenu)
+
 
 old_path=open("path.txt",'r')
 old_path=old_path.readline()
@@ -111,20 +237,8 @@ media_frame=media_playback(view_container,2,2,None)
 side_selection_container = frame_creation(win_canvas,2,2)
 side_selection_container.grid(row=0,column=0,sticky='w')
 
-side_selection=scrollable_frame(side_selection_container,"dark turquoise",220,793,"turquoise.TFrame",0,0,view_container,path,file_images,int(count/2),2)
+side_selection=scrollable_frame(side_selection_container,"dark turquoise",220,793,"turquoise.TFrame",0,0,view_container,path,file_images,int(count/2),2,media_frame)
 side_selection.disply_file(files,1)
-
-#side_select_canvas = tk.Canvas(side_selection_container,bg="dark turquoise",width=220,height=793)
-#side_selection_container.grid_columnconfigure(0,weight=3)
-#side_select_canvas.grid(row=0,column=0,sticky="nesw")
-
-#scrollbar = ttk.Scrollbar(side_selection_container,orient="vertical",command=side_select_canvas.yview)
-#scrollbar.grid(row=0,column=1,sticky='nes')
-
-#ide_select_canvas.configure(yscrollcommand=scrollbar.set)
-
-#scroll_frame = frame_creation(side_select_canvas,int(count/2),2,style="turquoise.TFrame")
-#side_select_canvas.create_window((0,0),window=scroll_frame,anchor='nw')
 
 def shrink(event):
     label = event
@@ -150,9 +264,6 @@ path_frame.grid_propagate(False)
 path_label=ttk.Label(path_frame,text=path,font="pathFont",style="white.TLabel")
 path_label.pack(side='left',pady=3)
 shrink(path_label)
-
-#ttk.Label(side_selection_container,text="rtj5e6je56j").grid(row=1,column=1)
-#path_label.bind("<Configure>",shrink)
 
 update_winsize(side_selection,view_container)
 
